@@ -1,7 +1,10 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   ImageBackground,
+  ImageSourcePropType,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
@@ -10,38 +13,65 @@ import {
   View,
 } from 'react-native';
 
-import { Product, getEffectivePrice } from '@/src/data/products';
 import { borderRadius, colors, spacing, typography } from '@/src/theme';
-import { formatCurrency } from '@/src/utils/currency';
 
-const CARD_WIDTH = 240;
+const CARD_WIDTH = 260;
 const CARD_GAP = spacing.sm;
 const AUTO_PLAY_INTERVAL = 4000;
+const OVERLAY_RGB = '43, 33, 26';
 
-const promoPhotos = [
-  require('../../../Fotos/1.jpg'),
-  require('../../../Fotos/2.jpg'),
-  require('../../../Fotos/3.jpg'),
-  require('../../../Fotos/7.jpg'),
-  require('../../../Fotos/8.jpg'),
-  require('../../../Fotos/9.jpg'),
-];
-
-interface PromoCarouselProps {
-  products: Product[];
-  onPressProduct: (product: Product) => void;
+interface PromoBanner {
+  id: string;
+  tag: string;
+  title: string;
+  cta: string;
+  photo: ImageSourcePropType;
+  route: '/agenda' | '/produtos' | '/aumigos';
 }
 
-export default function PromoCarousel({ products, onPressProduct }: PromoCarouselProps) {
+const banners: PromoBanner[] = [
+  {
+    id: 'primeira-visita',
+    tag: 'Primeira visita',
+    title: '20% off no primeiro banho & tosa',
+    cta: 'Agendar agora',
+    photo: require('../../../Fotos/2.jpg'),
+    route: '/agenda',
+  },
+  {
+    id: 'combo-semana',
+    tag: 'Combo da semana',
+    title: 'Banho + tosa com 15% off',
+    cta: 'Agendar agora',
+    photo: require('../../../Fotos/7.jpg'),
+    route: '/agenda',
+  },
+  {
+    id: 'novidade',
+    tag: 'Novidade',
+    title: 'Chegou a nova linha de brinquedos',
+    cta: 'Ver na loja',
+    photo: require('../../../Fotos/3.jpg'),
+    route: '/produtos',
+  },
+  {
+    id: 'indique-amigo',
+    tag: 'Indique um amigo',
+    title: 'Convide outros tutores pra rede AUmigos',
+    cta: 'Ver AUmigos',
+    photo: require('../../../Fotos/9.jpg'),
+    route: '/aumigos',
+  },
+];
+
+export default function PromoCarousel() {
   const listRef = useRef<FlatList>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (products.length < 2) return;
-
     const timer = setInterval(() => {
       setActiveIndex((current) => {
-        const next = (current + 1) % products.length;
+        const next = (current + 1) % banners.length;
         listRef.current?.scrollToOffset({
           offset: next * (CARD_WIDTH + CARD_GAP),
           animated: true,
@@ -51,22 +81,18 @@ export default function PromoCarousel({ products, onPressProduct }: PromoCarouse
     }, AUTO_PLAY_INTERVAL);
 
     return () => clearInterval(timer);
-  }, [products.length]);
-
-  if (products.length === 0) {
-    return null;
-  }
+  }, []);
 
   const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / (CARD_WIDTH + CARD_GAP));
-    setActiveIndex(Math.max(0, Math.min(index, products.length - 1)));
+    setActiveIndex(Math.max(0, Math.min(index, banners.length - 1)));
   };
 
   return (
     <View>
       <FlatList
         ref={listRef}
-        data={products}
+        data={banners}
         horizontal
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.id}
@@ -74,34 +100,37 @@ export default function PromoCarousel({ products, onPressProduct }: PromoCarouse
         snapToInterval={CARD_WIDTH + CARD_GAP}
         decelerationRate="fast"
         onMomentumScrollEnd={handleMomentumScrollEnd}
-        renderItem={({ item, index }) => (
-          <Pressable onPress={() => onPressProduct(item)}>
-            <ImageBackground
-              source={promoPhotos[index % promoPhotos.length]}
-              style={styles.card}
-              imageStyle={styles.cardImage}
-            >
-              <View style={styles.overlay} />
-              <Text style={styles.tag}>Promoção</Text>
-              <Text style={styles.name} numberOfLines={2}>
-                {item.nome}
+        renderItem={({ item }) => (
+          <Pressable onPress={() => router.push(item.route)} style={styles.cardWrapper}>
+            <ImageBackground source={item.photo} style={styles.card} imageStyle={styles.cardImage}>
+              <LinearGradient
+                colors={[
+                  `rgba(${OVERLAY_RGB}, 0.85)`,
+                  `rgba(${OVERLAY_RGB}, 0.05)`,
+                  `rgba(${OVERLAY_RGB}, 0)`,
+                ]}
+                locations={[0, 0.6, 1]}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 0, y: 0 }}
+                style={styles.gradient}
+              />
+              <Text style={styles.tag}>{item.tag}</Text>
+              <Text style={styles.title} numberOfLines={2}>
+                {item.title}
               </Text>
-              <Text style={styles.price}>{formatCurrency(getEffectivePrice(item))}</Text>
+              <View style={styles.ctaButton}>
+                <Text style={styles.ctaLabel}>{item.cta}</Text>
+              </View>
             </ImageBackground>
           </Pressable>
         )}
       />
 
-      {products.length > 1 && (
-        <View style={styles.dots}>
-          {products.map((product, index) => (
-            <View
-              key={product.id}
-              style={[styles.dot, index === activeIndex && styles.dotActive]}
-            />
-          ))}
-        </View>
-      )}
+      <View style={styles.dots}>
+        {banners.map((banner, index) => (
+          <View key={banner.id} style={[styles.dot, index === activeIndex && styles.dotActive]} />
+        ))}
+      </View>
     </View>
   );
 }
@@ -111,19 +140,22 @@ const styles = StyleSheet.create({
     gap: CARD_GAP,
     paddingRight: spacing.lg,
   },
-  card: {
+  cardWrapper: {
     width: CARD_WIDTH,
-    minHeight: 140,
+    aspectRatio: 16 / 10,
+    borderRadius: borderRadius.lg,
+    overflow: 'hidden',
+  },
+  card: {
+    flex: 1,
     justifyContent: 'flex-end',
     padding: spacing.md,
-    overflow: 'hidden',
   },
   cardImage: {
     borderRadius: borderRadius.lg,
   },
-  overlay: {
+  gradient: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.overlay,
   },
   tag: {
     ...typography.small,
@@ -136,14 +168,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     marginBottom: spacing.sm,
   },
-  name: {
+  title: {
     ...typography.heading3,
     color: colors.surface,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
-  price: {
-    ...typography.bodyBold,
-    color: colors.surface,
+  ctaButton: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primaryLight,
+    borderRadius: borderRadius.full,
+    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.md,
+  },
+  ctaLabel: {
+    ...typography.small,
+    fontWeight: '700',
+    color: colors.textPrimary,
   },
   dots: {
     flexDirection: 'row',

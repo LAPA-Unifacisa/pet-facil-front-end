@@ -12,12 +12,11 @@ import BestSellersRow from '@/src/components/home/BestSellersRow';
 import PromoCarousel from '@/src/components/home/PromoCarousel';
 import QuickShortcuts from '@/src/components/home/QuickShortcuts';
 import RecentPurchasesRow from '@/src/components/home/RecentPurchasesRow';
-import { Product, hasPromotion, products } from '@/src/data/products';
+import { Product, products } from '@/src/data/products';
 import { useAuth } from '@/src/hooks/useAuth';
 import { usePurchases } from '@/src/hooks/usePurchases';
 import { colors, spacing, typography } from '@/src/theme';
 
-const promoProducts = products.filter(hasPromotion);
 const bestSellers = products.filter((product) => product.maisVendido);
 
 export default function HomeScreen() {
@@ -38,7 +37,7 @@ export default function HomeScreen() {
           <Text style={styles.title}>Olá, {firstName}</Text>
         </View>
 
-        <PromoCarousel products={promoProducts} onPressProduct={handlePressProduct} />
+        <PromoCarousel />
 
         <QuickShortcuts
           items={[
