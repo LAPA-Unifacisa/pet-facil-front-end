@@ -1,9 +1,12 @@
+import { ImageSourcePropType } from 'react-native';
+
 export interface FeedPost {
   id: string;
   autor: string;
   petNome: string;
   legenda: string;
   categoria: string;
+  foto: ImageSourcePropType;
 }
 
 export const feedPosts: FeedPost[] = [
@@ -13,6 +16,7 @@ export const feedPosts: FeedPost[] = [
     petNome: 'Toby',
     legenda: 'Passeio de domingo no parque, Toby aprovou o sol!',
     categoria: 'passeio',
+    foto: require('../../Fotos/1.jpg'),
   },
   {
     id: 'post-2',
@@ -20,6 +24,7 @@ export const feedPosts: FeedPost[] = [
     petNome: 'Mel',
     legenda: 'Mel dormindo depois de um dia inteiro de brincadeira.',
     categoria: 'conquista',
+    foto: require('../../Fotos/3.jpg'),
   },
   {
     id: 'post-3',
@@ -27,6 +32,7 @@ export const feedPosts: FeedPost[] = [
     petNome: 'Bento',
     legenda: 'Bento conheceu a bolinha nova e não largou mais.',
     categoria: 'brincadeira',
+    foto: require('../../Fotos/6.jpg'),
   },
   {
     id: 'post-4',
@@ -34,6 +40,7 @@ export const feedPosts: FeedPost[] = [
     petNome: 'Nina',
     legenda: 'Primeiro banho de tosa da Nina, ficou toda estilosa.',
     categoria: 'conquista',
+    foto: require('../../Fotos/9.jpg'),
   },
   {
     id: 'post-5',
@@ -41,5 +48,6 @@ export const feedPosts: FeedPost[] = [
     petNome: 'Simba',
     legenda: 'Simba encontrou o cantinho perfeito de sol na sala.',
     categoria: 'passeio',
+    foto: require('../../Fotos/11.jpg'),
   },
 ];

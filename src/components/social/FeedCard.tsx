@@ -1,5 +1,4 @@
-import { PawPrintIcon } from 'phosphor-react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { FeedPost } from '@/src/data/feedPosts';
 import { borderRadius, colors, spacing, typography } from '@/src/theme';
@@ -17,9 +16,7 @@ interface FeedCardProps {
 export default function FeedCard({ post }: FeedCardProps) {
   return (
     <View style={styles.card}>
-      <View style={styles.photo}>
-        <PawPrintIcon size={36} color={colors.primaryDark} weight="regular" />
-      </View>
+      <Image source={post.foto} style={styles.photo} resizeMode="cover" />
       <View style={styles.info}>
         <View style={styles.row}>
           <Text style={styles.name}>
@@ -43,10 +40,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   photo: {
+    width: '100%',
     aspectRatio: 4 / 3,
     backgroundColor: colors.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   info: {
     padding: spacing.md,
