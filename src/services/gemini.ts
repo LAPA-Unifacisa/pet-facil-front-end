@@ -28,8 +28,11 @@ export async function sendMessageToAssistant(
     const client = new GoogleGenerativeAI(API_KEY);
     const model = client.getGenerativeModel({ model: MODEL_NAME, systemInstruction: SYSTEM_PROMPT });
 
+    const firstUserIndex = history.findIndex((item) => item.role === 'user');
+    const apiHistory = firstUserIndex === -1 ? [] : history.slice(firstUserIndex);
+
     const chat = model.startChat({
-      history: history.map((item) => ({ role: item.role, parts: [{ text: item.text }] })),
+      history: apiHistory.map((item) => ({ role: item.role, parts: [{ text: item.text }] })),
     });
 
     const timeout = new Promise<never>((_, reject) => {
