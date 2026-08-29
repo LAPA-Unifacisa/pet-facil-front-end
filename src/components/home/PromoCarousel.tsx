@@ -19,12 +19,12 @@ const CARD_GAP = spacing.sm;
 const AUTO_PLAY_INTERVAL = 4000;
 
 const promoPhotos = [
+  require('../../../Fotos/1.jpg'),
   require('../../../Fotos/2.jpg'),
-  require('../../../Fotos/4.jpg'),
-  require('../../../Fotos/5.jpg'),
+  require('../../../Fotos/3.jpg'),
   require('../../../Fotos/7.jpg'),
   require('../../../Fotos/8.jpg'),
-  require('../../../Fotos/10.jpg'),
+  require('../../../Fotos/9.jpg'),
 ];
 
 interface PromoCarouselProps {
