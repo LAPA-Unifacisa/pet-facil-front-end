@@ -3,8 +3,11 @@ import { StyleSheet, View } from 'react-native';
 
 import ChatFAB from '@/src/components/chat/ChatFAB';
 
+const HIDDEN_FAB_ROUTES = ['/chat', '/carrinho'];
+
 export default function MainLayout() {
   const pathname = usePathname();
+  const showFab = !HIDDEN_FAB_ROUTES.includes(pathname);
 
   return (
     <View style={styles.container}>
@@ -14,7 +17,7 @@ export default function MainLayout() {
         <Stack.Screen name="pedido-confirmado" />
         <Stack.Screen name="chat" options={{ presentation: 'modal' }} />
       </Stack>
-      {pathname !== '/chat' && <ChatFAB />}
+      {showFab && <ChatFAB />}
     </View>
   );
 }
