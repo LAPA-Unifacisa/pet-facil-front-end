@@ -1,6 +1,7 @@
 import { CheckCircleIcon } from 'phosphor-react-native';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import PillOption from '@/src/components/agenda/PillOption';
 import StepLabel from '@/src/components/agenda/StepLabel';
@@ -51,7 +52,8 @@ export default function AgendaScreen() {
   const findPetName = (id: string) => pets.find((pet) => pet.id === id)?.nome ?? 'Pet removido';
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.eyebrow}>Sem correria, sem fila</Text>
         <Text style={styles.title}>Agendar horário</Text>
@@ -154,7 +156,8 @@ export default function AgendaScreen() {
           ))}
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -168,7 +171,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   header: {
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
   },
   eyebrow: {
     ...typography.small,

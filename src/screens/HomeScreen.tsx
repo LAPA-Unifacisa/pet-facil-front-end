@@ -6,6 +6,7 @@ import {
   UserCircleIcon,
 } from 'phosphor-react-native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import BestSellersRow from '@/src/components/home/BestSellersRow';
 import PromoCarousel from '@/src/components/home/PromoCarousel';
@@ -30,51 +31,53 @@ export default function HomeScreen() {
   const firstName = currentUser?.nomeCompleto.split(' ')[0] ?? '';
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.eyebrow}>Bem-vindo de volta</Text>
-        <Text style={styles.title}>Olá, {firstName}</Text>
-      </View>
-
-      <PromoCarousel products={promoProducts} onPressProduct={handlePressProduct} />
-
-      <QuickShortcuts
-        items={[
-          {
-            label: 'AUmigos',
-            icon: <PawPrintIcon size={20} color={colors.primaryDark} weight="regular" />,
-            onPress: () => router.push('/aumigos'),
-          },
-          {
-            label: 'Produtos',
-            icon: <StorefrontIcon size={20} color={colors.primaryDark} weight="regular" />,
-            onPress: () => router.push('/produtos'),
-          },
-          {
-            label: 'Agenda',
-            icon: <CalendarBlankIcon size={20} color={colors.primaryDark} weight="regular" />,
-            onPress: () => router.push('/agenda'),
-          },
-          {
-            label: 'Configurações',
-            icon: <UserCircleIcon size={20} color={colors.primaryDark} weight="regular" />,
-            onPress: () => router.push('/configuracoes'),
-          },
-        ]}
-      />
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Mais vendidos</Text>
-        <BestSellersRow products={bestSellers} onPressProduct={handlePressProduct} />
-      </View>
-
-      {purchases.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Últimos comprados</Text>
-          <RecentPurchasesRow purchases={purchases.slice(0, 6)} />
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.eyebrow}>Bem-vindo de volta</Text>
+          <Text style={styles.title}>Olá, {firstName}</Text>
         </View>
-      )}
-    </ScrollView>
+
+        <PromoCarousel products={promoProducts} onPressProduct={handlePressProduct} />
+
+        <QuickShortcuts
+          items={[
+            {
+              label: 'AUmigos',
+              icon: <PawPrintIcon size={20} color={colors.primaryDark} weight="regular" />,
+              onPress: () => router.push('/aumigos'),
+            },
+            {
+              label: 'Produtos',
+              icon: <StorefrontIcon size={20} color={colors.primaryDark} weight="regular" />,
+              onPress: () => router.push('/produtos'),
+            },
+            {
+              label: 'Agenda',
+              icon: <CalendarBlankIcon size={20} color={colors.primaryDark} weight="regular" />,
+              onPress: () => router.push('/agenda'),
+            },
+            {
+              label: 'Configurações',
+              icon: <UserCircleIcon size={20} color={colors.primaryDark} weight="regular" />,
+              onPress: () => router.push('/configuracoes'),
+            },
+          ]}
+        />
+
+        {purchases.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Últimos comprados</Text>
+            <RecentPurchasesRow purchases={purchases.slice(0, 6)} />
+          </View>
+        )}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Mais vendidos</Text>
+          <BestSellersRow products={bestSellers} onPressProduct={handlePressProduct} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -88,7 +91,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   header: {
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
   },
   eyebrow: {
     ...typography.small,

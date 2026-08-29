@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import FeedCard from '@/src/components/social/FeedCard';
 import { feedPosts } from '@/src/data/feedPosts';
@@ -6,7 +7,7 @@ import { colors, spacing, typography } from '@/src/theme';
 
 export default function AUmigosScreen() {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <FlatList
         data={feedPosts}
         keyExtractor={(item) => item.id}
@@ -21,7 +22,7 @@ export default function AUmigosScreen() {
         }
         renderItem={({ item }) => <FeedCard post={item} />}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -34,6 +35,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   header: {
+    marginTop: spacing.sm,
     marginBottom: spacing.md,
   },
   eyebrow: {

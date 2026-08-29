@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { ShoppingCartIcon } from 'phosphor-react-native';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ProductList from '@/src/components/product/ProductList';
 import IconButton from '@/src/components/ui/IconButton';
@@ -38,7 +39,7 @@ export default function ProductListScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <ProductList
         products={filteredProducts}
         onPressProduct={handlePressProduct}
@@ -81,7 +82,7 @@ export default function ProductListScreen() {
           </View>
         }
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.md,
   },
   header: {
     flexDirection: 'row',

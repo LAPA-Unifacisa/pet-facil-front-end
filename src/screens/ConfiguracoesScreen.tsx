@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { CaretRightIcon, PlusIcon, SignOutIcon, UserCircleIcon } from 'phosphor-react-native';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import PetCard from '@/src/components/pet/PetCard';
 import { useAuth } from '@/src/hooks/useAuth';
@@ -12,7 +13,8 @@ export default function ConfiguracoesScreen() {
   const { pets, removePet } = usePets();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.eyebrow}>Sua conta</Text>
         <Text style={styles.title}>Configurações</Text>
@@ -53,7 +55,8 @@ export default function ConfiguracoesScreen() {
           <CaretRightIcon size={16} color={colors.textTertiary} weight="regular" />
         </Pressable>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -67,7 +70,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   header: {
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
   },
   eyebrow: {
     ...typography.small,
