@@ -41,8 +41,7 @@ const styles = StyleSheet.create({
   },
   photo: {
     width: '100%',
-    aspectRatio: 1,
-    maxHeight: 320,
+    height: 220,
     backgroundColor: colors.secondary,
   },
   info: {
