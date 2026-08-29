@@ -38,21 +38,20 @@ export default function ChatScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <IconButton
-          icon={<ArrowLeftIcon size={18} color={colors.textPrimary} weight="regular" />}
-          onPress={() => router.back()}
-          accessibilityLabel="Voltar"
-        />
-        <Text style={styles.title}>Assistente PetFacil</Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 16 : 0}
       >
+        <View style={styles.header}>
+          <IconButton
+            icon={<ArrowLeftIcon size={18} color={colors.textPrimary} weight="regular" />}
+            onPress={() => router.back()}
+            accessibilityLabel="Voltar"
+          />
+          <Text style={styles.title}>Assistente PetFacil</Text>
+          <View style={styles.headerSpacer} />
+        </View>
+
         <FlatList
           ref={listRef}
           data={messages}
