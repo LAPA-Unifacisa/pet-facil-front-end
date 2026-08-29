@@ -17,12 +17,7 @@ interface FeedCardProps {
 export default function FeedCard({ post }: FeedCardProps) {
   return (
     <View style={styles.card}>
-      <Image
-        source={post.foto}
-        style={styles.photo}
-        contentFit="cover"
-        contentPosition="top"
-      />
+      <Image source={post.foto} style={styles.photo} contentFit="cover" />
       <View style={styles.info}>
         <View style={styles.row}>
           <Text style={styles.name}>

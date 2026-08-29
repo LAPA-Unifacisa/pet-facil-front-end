@@ -27,14 +27,6 @@ export const feedPosts: FeedPost[] = [
     foto: require('../../Fotos/4.jpg'),
   },
   {
-    id: 'post-3',
-    autor: 'Camila Ferreira',
-    petNome: 'Simba',
-    legenda: 'Simba encontrou o cantinho perfeito de sol pra ficar de olho em tudo.',
-    categoria: 'passeio',
-    foto: require('../../Fotos/5.jpg'),
-  },
-  {
     id: 'post-4',
     autor: 'Lucas Martins',
     petNome: 'Bento',
