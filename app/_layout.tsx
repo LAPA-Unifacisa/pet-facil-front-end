@@ -1,24 +1,46 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import Loading from '@/src/components/ui/Loading';
+import AppointmentProvider from '@/src/contexts/AppointmentContext';
+import AuthProvider from '@/src/contexts/AuthContext';
+import CartProvider from '@/src/contexts/CartContext';
+import PetProvider from '@/src/contexts/PetContext';
+import PurchaseProvider from '@/src/contexts/PurchaseContext';
+import { useAuth } from '@/src/hooks/useAuth';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+function RootNavigation() {
+  const { currentUser, isLoading } = useAuth();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={!currentUser}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!!currentUser}>
+        <Stack.Screen name="(main)" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <PurchaseProvider>
+          <PetProvider>
+            <AppointmentProvider>
+              <RootNavigation />
+              <StatusBar style="dark" />
+            </AppointmentProvider>
+          </PetProvider>
+        </PurchaseProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 }
