@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 const MODEL_NAME = 'gemini-3.6-flash';
-const TIMEOUT_MS = 15000;
+const TIMEOUT_MS = 25000;
 
 const SYSTEM_PROMPT =
   'Você é o assistente virtual do PetFacil, um aplicativo de pet shop. ' +
