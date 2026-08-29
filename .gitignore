@@ -43,3 +43,7 @@ app-example
 /android
 CLAUDE.md
 modelo.html
+Fotos/
+
+# local env
+.env
