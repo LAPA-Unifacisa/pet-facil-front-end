@@ -35,7 +35,7 @@ const banners: PromoBanner[] = [
     tag: 'Primeira visita',
     title: '20% off no primeiro banho & tosa',
     cta: 'Agendar agora',
-    photo: require('../../../Fotos/2.jpg'),
+    photo: require('../../../Fotos/10.jpg'),
     route: '/agenda',
   },
   {
