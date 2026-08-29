@@ -38,7 +38,8 @@ export async function sendMessageToAssistant(
 
     const result = await Promise.race([chat.sendMessage(message), timeout]);
     return result.response.text() || FALLBACK_MESSAGE;
-  } catch {
+  } catch (error) {
+    console.warn('[gemini] falha ao consultar o assistente:', error);
     return FALLBACK_MESSAGE;
   }
 }
