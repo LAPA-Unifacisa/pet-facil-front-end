@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
-const MODEL_NAME = 'gemini-2.0-flash';
+const MODEL_NAME = 'gemini-3.6-flash';
 const TIMEOUT_MS = 15000;
 
 const SYSTEM_PROMPT =
@@ -26,16 +26,17 @@ export async function sendMessageToAssistant(
 
   try {
     const client = new GoogleGenerativeAI(API_KEY);
-    const model = client.getGenerativeModel(
-      { model: MODEL_NAME, systemInstruction: SYSTEM_PROMPT },
-      { timeout: TIMEOUT_MS },
-    );
+    const model = client.getGenerativeModel({ model: MODEL_NAME, systemInstruction: SYSTEM_PROMPT });
 
     const chat = model.startChat({
       history: history.map((item) => ({ role: item.role, parts: [{ text: item.text }] })),
     });
 
-    const result = await chat.sendMessage(message);
+    const timeout = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS);
+    });
+
+    const result = await Promise.race([chat.sendMessage(message), timeout]);
     return result.response.text() || FALLBACK_MESSAGE;
   } catch {
     return FALLBACK_MESSAGE;
