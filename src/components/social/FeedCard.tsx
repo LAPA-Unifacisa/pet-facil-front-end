@@ -1,4 +1,5 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { FeedPost } from '@/src/data/feedPosts';
 import { borderRadius, colors, spacing, typography } from '@/src/theme';
@@ -16,7 +17,12 @@ interface FeedCardProps {
 export default function FeedCard({ post }: FeedCardProps) {
   return (
     <View style={styles.card}>
-      <Image source={post.foto} style={styles.photo} resizeMode="cover" />
+      <Image
+        source={post.foto}
+        style={styles.photo}
+        contentFit="cover"
+        contentPosition="top"
+      />
       <View style={styles.info}>
         <View style={styles.row}>
           <Text style={styles.name}>
