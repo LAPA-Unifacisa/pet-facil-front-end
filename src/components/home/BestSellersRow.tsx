@@ -53,6 +53,6 @@ const styles = StyleSheet.create({
   price: {
     ...typography.caption,
     fontWeight: '700',
-    color: colors.textPrimary,
+    color: colors.primaryDark,
   },
 });
