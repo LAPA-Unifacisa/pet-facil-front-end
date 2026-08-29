@@ -18,12 +18,11 @@ export default function ProductCard({ product, onPress, onAddToCart }: ProductCa
   return (
     <Pressable onPress={onPress} style={styles.wrapper}>
       <Card style={styles.card}>
-        <View style={styles.badgeSlot}>
+        <View style={styles.iconRow}>
+          <View style={styles.icon}>
+            <PawPrintIcon size={18} color={colors.primaryDark} weight="regular" />
+          </View>
           <PromoBadge product={product} />
-        </View>
-
-        <View style={styles.icon}>
-          <PawPrintIcon size={18} color={colors.primaryDark} weight="regular" />
         </View>
 
         <Text style={styles.name} numberOfLines={2}>
@@ -34,7 +33,7 @@ export default function ProductCard({ product, onPress, onAddToCart }: ProductCa
         </Text>
 
         <View style={styles.footer}>
-          <View>
+          <View style={styles.priceColumn}>
             {hasPromotion(product) && (
               <Text style={styles.oldPrice}>{formatCurrency(product.precoAtual)}</Text>
             )}
@@ -60,9 +59,11 @@ const styles = StyleSheet.create({
   card: {
     gap: spacing.xs,
   },
-  badgeSlot: {
-    minHeight: 20,
-    alignItems: 'flex-end',
+  iconRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: spacing.xs,
   },
   icon: {
     width: 36,
@@ -71,11 +72,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.xs,
   },
   name: {
     ...typography.bodyBold,
     color: colors.textPrimary,
+    minHeight: 40,
   },
   description: {
     ...typography.small,
@@ -87,6 +88,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: spacing.xs,
+  },
+  priceColumn: {
+    minHeight: 44,
+    justifyContent: 'flex-end',
   },
   oldPrice: {
     ...typography.priceOld,
