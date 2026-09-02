@@ -15,7 +15,7 @@ import {
 
 import { borderRadius, colors, spacing, typography } from '@/src/theme';
 
-const CARD_WIDTH = 260;
+const CARD_WIDTH = 350;
 const CARD_GAP = spacing.sm;
 const AUTO_PLAY_INTERVAL = 4000;
 const OVERLAY_RGB = '43, 33, 26';
