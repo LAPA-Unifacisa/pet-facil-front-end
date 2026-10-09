@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 import {
+  BellIcon,
   CalendarBlankIcon,
   PawPrintIcon,
   StorefrontIcon,
@@ -12,16 +13,21 @@ import BestSellersRow from '@/src/components/home/BestSellersRow';
 import PromoCarousel from '@/src/components/home/PromoCarousel';
 import QuickShortcuts from '@/src/components/home/QuickShortcuts';
 import RecentPurchasesRow from '@/src/components/home/RecentPurchasesRow';
-import { Product, products } from '@/src/data/products';
+import IconButton from '@/src/components/ui/IconButton';
 import { useAuth } from '@/src/hooks/useAuth';
+import { useNotifications } from '@/src/hooks/useNotifications';
+import { useProducts } from '@/src/hooks/useProducts';
 import { usePurchases } from '@/src/hooks/usePurchases';
 import { colors, spacing, typography } from '@/src/theme';
-
-const bestSellers = products.filter((product) => product.maisVendido);
+import { Product } from '@/src/utils/product';
 
 export default function HomeScreen() {
   const { currentUser } = useAuth();
   const { purchases } = usePurchases();
+  const { products } = useProducts();
+  const { unread } = useNotifications();
+
+  const bestSellers = products.filter((product) => product.maisVendido);
 
   const handlePressProduct = (product: Product) => {
     router.push(`/produtos/${product.id}`);
@@ -33,8 +39,16 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>Bem-vindo de volta</Text>
-          <Text style={styles.title}>Olá, {firstName}</Text>
+          <View>
+            <Text style={styles.eyebrow}>Bem-vindo de volta</Text>
+            <Text style={styles.title}>Olá, {firstName}</Text>
+          </View>
+          <IconButton
+            icon={<BellIcon size={18} color={colors.textPrimary} weight="regular" />}
+            onPress={() => router.push('/notificacoes')}
+            badgeCount={unread}
+            accessibilityLabel="Abrir notificações"
+          />
         </View>
 
         <PromoCarousel />
@@ -71,10 +85,12 @@ export default function HomeScreen() {
           </View>
         )}
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Mais vendidos</Text>
-          <BestSellersRow products={bestSellers} onPressProduct={handlePressProduct} />
-        </View>
+        {bestSellers.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Mais vendidos</Text>
+            <BestSellersRow products={bestSellers} onPressProduct={handlePressProduct} />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -90,6 +106,9 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
     marginTop: spacing.md,
   },
   eyebrow: {
