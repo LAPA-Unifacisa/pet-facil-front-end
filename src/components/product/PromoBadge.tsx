@@ -1,4 +1,4 @@
-import { Product, hasPromotion } from '@/src/data/products';
+import { Product, hasPromotion } from '@/src/utils/product';
 
 import Badge from '../ui/Badge';
 

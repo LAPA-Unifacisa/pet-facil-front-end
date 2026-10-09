@@ -2,8 +2,8 @@ import { PawPrintIcon } from 'phosphor-react-native';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Purchase } from '@/src/contexts/PurchaseContext';
-import { products } from '@/src/data/products';
 import { useCart } from '@/src/hooks/useCart';
+import { useProducts } from '@/src/hooks/useProducts';
 import { borderRadius, colors, spacing, typography } from '@/src/theme';
 import { formatCurrency } from '@/src/utils/currency';
 import { formatDate } from '@/src/utils/date';
@@ -14,6 +14,7 @@ interface RecentPurchasesRowProps {
 
 export default function RecentPurchasesRow({ purchases }: RecentPurchasesRowProps) {
   const { addItem } = useCart();
+  const { products } = useProducts();
 
   const handleBuyAgain = (nomeProduto: string) => {
     const product = products.find((item) => item.nome === nomeProduto);

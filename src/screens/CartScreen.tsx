@@ -14,16 +14,23 @@ import { usePurchases } from '@/src/hooks/usePurchases';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function CartScreen() {
-  const { items, removeItem, clearCart, total } = useCart();
-  const { registerPurchases } = usePurchases();
+  const { items, removeItem, checkout, total } = useCart();
+  const { refresh } = usePurchases();
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFinish = async () => {
     setSubmitting(true);
-    await registerPurchases(items);
-    clearCart();
-    setSubmitting(false);
-    router.replace('/pedido-confirmado');
+    setError(null);
+    try {
+      await checkout();
+      await refresh();
+      router.replace('/pedido-confirmado');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível finalizar o pedido.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -58,6 +65,7 @@ export default function CartScreen() {
       {items.length > 0 && (
         <View style={styles.footer}>
           <CartSummary total={total} />
+          {!!error && <Text style={styles.error}>{error}</Text>}
           <Button label="Finalizar pedido" onPress={handleFinish} loading={submitting} />
         </View>
       )}
@@ -93,5 +101,10 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: colors.border,
+  },
+  error: {
+    ...typography.caption,
+    color: colors.error,
+    marginBottom: spacing.sm,
   },
 });

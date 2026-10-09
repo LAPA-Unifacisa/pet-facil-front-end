@@ -2,7 +2,7 @@ import { PawPrintIcon, PlusIcon } from 'phosphor-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import Card from '@/src/components/ui/Card';
-import { Product, getEffectivePrice, hasPromotion } from '@/src/data/products';
+import { Product, getEffectivePrice, hasPromotion } from '@/src/utils/product';
 import { borderRadius, colors, spacing, typography } from '@/src/theme';
 import { formatCurrency } from '@/src/utils/currency';
 

@@ -1,7 +1,7 @@
 import { PawPrintIcon } from 'phosphor-react-native';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { Product, getEffectivePrice } from '@/src/data/products';
+import { Product, getEffectivePrice } from '@/src/utils/product';
 import { borderRadius, colors, spacing, typography } from '@/src/theme';
 import { formatCurrency } from '@/src/utils/currency';
 

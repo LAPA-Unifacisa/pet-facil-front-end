@@ -6,9 +6,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ProductList from '@/src/components/product/ProductList';
 import IconButton from '@/src/components/ui/IconButton';
-import { Product, products } from '@/src/data/products';
 import { useCart } from '@/src/hooks/useCart';
+import { useProducts } from '@/src/hooks/useProducts';
 import { borderRadius, colors, spacing, typography } from '@/src/theme';
+import { Product } from '@/src/utils/product';
 
 const CATEGORY_LABELS: Record<string, string> = {
   todos: 'Todos',
@@ -22,11 +23,12 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export default function ProductListScreen() {
   const { addItem, itemCount } = useCart();
+  const { products, loading, error, refresh } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState('todos');
 
   const categories = useMemo(
     () => ['todos', ...Array.from(new Set(products.map((product) => product.tipo)))],
-    [],
+    [products],
   );
 
   const filteredProducts =
@@ -44,6 +46,9 @@ export default function ProductListScreen() {
         products={filteredProducts}
         onPressProduct={handlePressProduct}
         onAddToCart={addItem}
+        refreshing={loading}
+        onRefresh={refresh}
+        emptyDescription={error ?? undefined}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <View>

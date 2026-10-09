@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeftIcon, PawPrintIcon } from 'phosphor-react-native';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,16 +8,26 @@ import PromoBadge from '@/src/components/product/PromoBadge';
 import Button from '@/src/components/ui/Button';
 import IconButton from '@/src/components/ui/IconButton';
 import { ProdutoDetailParams } from '@/src/@types/navigation';
-import { getEffectivePrice, hasPromotion, products } from '@/src/data/products';
 import { useCart } from '@/src/hooks/useCart';
+import { useProducts } from '@/src/hooks/useProducts';
 import { borderRadius, colors, spacing, typography } from '@/src/theme';
 import { formatCurrency } from '@/src/utils/currency';
 import { formatDate } from '@/src/utils/date';
+import { getEffectivePrice, hasPromotion } from '@/src/utils/product';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<ProdutoDetailParams>();
   const { addItem } = useCart();
-  const product = products.find((item) => item.id === id);
+  const { getProductById } = useProducts();
+  const [adding, setAdding] = useState(false);
+  const product = getProductById(id);
+
+  const handleAdd = async () => {
+    if (!product) return;
+    setAdding(true);
+    await addItem(product);
+    setAdding(false);
+  };
 
   if (!product) {
     return (
@@ -56,7 +67,12 @@ export default function ProductDetailScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button label="Adicionar ao carrinho" onPress={() => addItem(product)} />
+        <Button
+          label={product.estoque > 0 ? 'Adicionar ao carrinho' : 'Sem estoque'}
+          onPress={handleAdd}
+          loading={adding}
+          disabled={product.estoque <= 0}
+        />
       </View>
     </SafeAreaView>
   );

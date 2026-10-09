@@ -1,9 +1,7 @@
-import { ReactNode, createContext, useEffect, useState } from 'react';
+import { ReactNode, createContext, useCallback, useEffect, useState } from 'react';
 
-import { CartItem } from '@/src/contexts/CartContext';
-import { getEffectivePrice } from '@/src/data/products';
-import { STORAGE_KEYS, getItem, setItem } from '@/src/services/storage';
-import { generateId } from '@/src/utils/id';
+import { useAuth } from '@/src/hooks/useAuth';
+import { api } from '@/src/services/api';
 
 export interface Purchase {
   id: string;
@@ -14,7 +12,7 @@ export interface Purchase {
 
 export interface PurchaseContextValue {
   purchases: Purchase[];
-  registerPurchases: (items: CartItem[]) => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
 export const PurchaseContext = createContext<PurchaseContextValue | null>(null);
@@ -24,32 +22,23 @@ interface PurchaseProviderProps {
 }
 
 export default function PurchaseProvider({ children }: PurchaseProviderProps) {
+  const { currentUser } = useAuth();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const stored = await getItem<Purchase[]>(STORAGE_KEYS.PURCHASES);
-      setPurchases(stored ?? []);
-    })();
+  const refresh = useCallback(async () => {
+    try {
+      setPurchases(await api<Purchase[]>('/api/purchases'));
+    } catch (error) {
+      console.warn('[purchases] falha ao carregar as compras:', error);
+    }
   }, []);
 
-  const registerPurchases = async (items: CartItem[]) => {
-    const now = new Date().toISOString();
-    const newPurchases: Purchase[] = items.map((item) => ({
-      id: generateId(),
-      nomeProduto: item.product.nome,
-      preco: getEffectivePrice(item.product) * item.quantity,
-      dataCompra: now,
-    }));
-
-    const updated = [...newPurchases, ...purchases];
-    await setItem(STORAGE_KEYS.PURCHASES, updated);
-    setPurchases(updated);
-  };
+  useEffect(() => {
+    if (currentUser) refresh();
+    else setPurchases([]);
+  }, [currentUser, refresh]);
 
   return (
-    <PurchaseContext.Provider value={{ purchases, registerPurchases }}>
-      {children}
-    </PurchaseContext.Provider>
+    <PurchaseContext.Provider value={{ purchases, refresh }}>{children}</PurchaseContext.Provider>
   );
 }

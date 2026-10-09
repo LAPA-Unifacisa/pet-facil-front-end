@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import Card from '@/src/components/ui/Card';
 import { CartItem as CartItemModel } from '@/src/contexts/CartContext';
-import { getEffectivePrice } from '@/src/data/products';
+import { getEffectivePrice } from '@/src/utils/product';
 import { colors, spacing, typography } from '@/src/theme';
 import { formatCurrency } from '@/src/utils/currency';
 
