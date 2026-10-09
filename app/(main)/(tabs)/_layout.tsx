@@ -10,6 +10,8 @@ import { Text } from 'react-native';
 
 import { colors } from '@/src/theme';
 
+const tabColor = (focused: boolean) => (focused ? colors.primary : colors.textTertiary);
+
 export default function TabsLayout() {
   return (
     <Tabs
@@ -24,8 +26,8 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <HouseIcon color={color} size={size} weight="regular" />
+          tabBarIcon: ({ focused, size }) => (
+            <HouseIcon color={tabColor(focused)} size={size} weight="regular" />
           ),
         }}
       />
@@ -33,8 +35,8 @@ export default function TabsLayout() {
         name="aumigos"
         options={{
           title: 'AUmigos',
-          tabBarIcon: ({ color, size }) => (
-            <PawPrintIcon color={color} size={size} weight="regular" />
+          tabBarIcon: ({ focused, size }) => (
+            <PawPrintIcon color={tabColor(focused)} size={size} weight="regular" />
           ),
           tabBarLabel: ({ color }) => (
             <Text style={{ fontSize: 10, fontWeight: '600', color }}>
@@ -48,8 +50,8 @@ export default function TabsLayout() {
         name="produtos"
         options={{
           title: 'Produtos',
-          tabBarIcon: ({ color, size }) => (
-            <StorefrontIcon color={color} size={size} weight="regular" />
+          tabBarIcon: ({ focused, size }) => (
+            <StorefrontIcon color={tabColor(focused)} size={size} weight="regular" />
           ),
         }}
       />
@@ -57,8 +59,8 @@ export default function TabsLayout() {
         name="agenda"
         options={{
           title: 'Agenda',
-          tabBarIcon: ({ color, size }) => (
-            <CalendarBlankIcon color={color} size={size} weight="regular" />
+          tabBarIcon: ({ focused, size }) => (
+            <CalendarBlankIcon color={tabColor(focused)} size={size} weight="regular" />
           ),
         }}
       />
@@ -66,8 +68,8 @@ export default function TabsLayout() {
         name="configuracoes"
         options={{
           title: 'Config',
-          tabBarIcon: ({ color, size }) => (
-            <UserCircleIcon color={color} size={size} weight="regular" />
+          tabBarIcon: ({ focused, size }) => (
+            <UserCircleIcon color={tabColor(focused)} size={size} weight="regular" />
           ),
         }}
       />

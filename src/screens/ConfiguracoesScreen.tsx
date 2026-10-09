@@ -45,10 +45,9 @@ export default function ConfiguracoesScreen() {
     });
     if (result.canceled) return;
 
-    const asset = result.assets[0];
     setUploadingAvatar(true);
     try {
-      await setAvatar(asset.uri, asset.mimeType);
+      await setAvatar(result.assets[0].uri);
     } catch (error) {
       Alert.alert(
         'Foto de perfil',

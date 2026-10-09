@@ -1,3 +1,4 @@
+import { File } from 'expo-file-system';
 import * as SecureStore from 'expo-secure-store';
 import { ReactNode, createContext, useEffect, useState } from 'react';
 
@@ -37,7 +38,7 @@ export interface AuthContextValue {
   register: (input: RegisterInput) => Promise<AuthResult>;
   login: (login: string, senha: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
-  setAvatar: (uri: string, mimeType?: string | null) => Promise<void>;
+  setAvatar: (uri: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -109,11 +110,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     setCurrentUser(null);
   };
 
-  const setAvatar = async (uri: string, mimeType?: string | null) => {
-    const type = mimeType ?? 'image/jpeg';
-    const extension = type.split('/')[1] ?? 'jpg';
+  const setAvatar = async (uri: string) => {
+    const file = new File(uri);
+    if (!file.exists) throw new Error('Não foi possível ler a foto escolhida.');
     const form = new FormData();
-    form.append('avatar', { uri, name: `avatar.${extension}`, type } as unknown as Blob);
+    form.append('avatar', file);
     setCurrentUser(await api<User>('/api/users/me/avatar', { method: 'POST', body: form }));
   };
 

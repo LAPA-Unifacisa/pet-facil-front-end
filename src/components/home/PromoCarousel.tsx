@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
   },
   gradient: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   tag: {
     ...typography.small,
