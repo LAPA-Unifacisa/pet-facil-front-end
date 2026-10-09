@@ -1,8 +1,8 @@
-import { ReactNode, createContext, useEffect, useState } from 'react';
+import { ReactNode, createContext } from 'react';
 import { Alert } from 'react-native';
 
-import { useAuth } from '@/src/hooks/useAuth';
-import { api, del, patch, post } from '@/src/services/api';
+import { useUserData } from '@/src/hooks/useUserData';
+import { del, patch, post } from '@/src/services/api';
 import { Product } from '@/src/utils/product';
 
 export interface CartItem {
@@ -36,22 +36,12 @@ interface CartProviderProps {
 const EMPTY_CART: CartResponse = { items: [], total: 0, itemCount: 0 };
 
 export default function CartProvider({ children }: CartProviderProps) {
-  const { currentUser } = useAuth();
-  const [cart, setCart] = useState<CartResponse>(EMPTY_CART);
-
-  useEffect(() => {
-    if (!currentUser) {
-      setCart(EMPTY_CART);
-      return;
-    }
-    api<CartResponse>('/api/cart')
-      .then(setCart)
-      .catch((error: unknown) => console.warn('[cart] falha ao carregar o carrinho:', error));
-  }, [currentUser]);
+  const { data: cart, setData: setCart } = useUserData('/api/cart', EMPTY_CART);
 
   const run = async (request: Promise<CartResponse>) => {
     try {
-      setCart(await request);
+      const updated = await request;
+      setCart(() => updated);
     } catch (error) {
       Alert.alert('Carrinho', error instanceof Error ? error.message : 'Tente novamente.');
     }
@@ -69,7 +59,7 @@ export default function CartProvider({ children }: CartProviderProps) {
 
   const checkout = async () => {
     await post('/api/orders');
-    setCart(EMPTY_CART);
+    setCart(() => EMPTY_CART);
   };
 
   return (

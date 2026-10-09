@@ -1,13 +1,14 @@
-import { ReactNode, createContext, useCallback, useEffect, useState } from 'react';
+import { ReactNode, createContext, useState } from 'react';
 
-import { useAuth } from '@/src/hooks/useAuth';
-import { api } from '@/src/services/api';
+import { useUserData } from '@/src/hooks/useUserData';
 import { Product } from '@/src/utils/product';
 
 interface ProductPage {
   items: Product[];
   total: number;
 }
+
+const EMPTY_PAGE: ProductPage = { items: [], total: 0 };
 
 export interface ProductContextValue {
   products: Product[];
@@ -24,33 +25,22 @@ interface ProductProviderProps {
 }
 
 export default function ProductProvider({ children }: ProductProviderProps) {
-  const { currentUser } = useAuth();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, reload } = useUserData('/api/products?limit=50', EMPTY_PAGE);
+  const [refreshing, setRefreshing] = useState(false);
+  const products = data.items;
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const page = await api<ProductPage>('/api/products?limit=50');
-      setProducts(page.items);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Não foi possível carregar os produtos.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (currentUser) refresh();
-    else setProducts([]);
-  }, [currentUser, refresh]);
+  const refresh = async () => {
+    setRefreshing(true);
+    await reload();
+    setRefreshing(false);
+  };
 
   const getProductById = (id: string) => products.find((product) => product.id === id);
 
   return (
-    <ProductContext.Provider value={{ products, loading, error, getProductById, refresh }}>
+    <ProductContext.Provider
+      value={{ products, loading: loading || refreshing, error, getProductById, refresh }}
+    >
       {children}
     </ProductContext.Provider>
   );

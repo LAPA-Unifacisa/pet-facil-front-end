@@ -1,7 +1,6 @@
-import { ReactNode, createContext, useCallback, useEffect, useState } from 'react';
+import { ReactNode, createContext } from 'react';
 
-import { useAuth } from '@/src/hooks/useAuth';
-import { api } from '@/src/services/api';
+import { useUserData } from '@/src/hooks/useUserData';
 
 export interface Purchase {
   id: string;
@@ -9,6 +8,8 @@ export interface Purchase {
   preco: number;
   dataCompra: string;
 }
+
+const NO_PURCHASES: Purchase[] = [];
 
 export interface PurchaseContextValue {
   purchases: Purchase[];
@@ -22,23 +23,11 @@ interface PurchaseProviderProps {
 }
 
 export default function PurchaseProvider({ children }: PurchaseProviderProps) {
-  const { currentUser } = useAuth();
-  const [purchases, setPurchases] = useState<Purchase[]>([]);
-
-  const refresh = useCallback(async () => {
-    try {
-      setPurchases(await api<Purchase[]>('/api/purchases'));
-    } catch (error) {
-      console.warn('[purchases] falha ao carregar as compras:', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (currentUser) refresh();
-    else setPurchases([]);
-  }, [currentUser, refresh]);
+  const { data: purchases, reload } = useUserData('/api/purchases', NO_PURCHASES);
 
   return (
-    <PurchaseContext.Provider value={{ purchases, refresh }}>{children}</PurchaseContext.Provider>
+    <PurchaseContext.Provider value={{ purchases, refresh: reload }}>
+      {children}
+    </PurchaseContext.Provider>
   );
 }

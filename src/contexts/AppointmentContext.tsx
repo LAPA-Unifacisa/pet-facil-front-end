@@ -1,7 +1,7 @@
-import { ReactNode, createContext, useCallback, useEffect, useState } from 'react';
+import { ReactNode, createContext } from 'react';
 
-import { useAuth } from '@/src/hooks/useAuth';
-import { api, post } from '@/src/services/api';
+import { useUserData } from '@/src/hooks/useUserData';
+import { post } from '@/src/services/api';
 
 export interface Agendamento {
   id: string;
@@ -12,6 +12,8 @@ export interface Agendamento {
 }
 
 type AgendamentoInput = Omit<Agendamento, 'id'>;
+
+const NO_APPOINTMENTS: Agendamento[] = [];
 
 export interface AppointmentContextValue {
   appointments: Agendamento[];
@@ -29,21 +31,11 @@ const byDateTime = (a: Agendamento, b: Agendamento) =>
   `${a.data} ${a.horario}`.localeCompare(`${b.data} ${b.horario}`);
 
 export default function AppointmentProvider({ children }: AppointmentProviderProps) {
-  const { currentUser } = useAuth();
-  const [appointments, setAppointments] = useState<Agendamento[]>([]);
-
-  const refresh = useCallback(async () => {
-    try {
-      setAppointments(await api<Agendamento[]>('/api/appointments'));
-    } catch (error) {
-      console.warn('[agenda] falha ao carregar os agendamentos:', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (currentUser) refresh();
-    else setAppointments([]);
-  }, [currentUser, refresh]);
+  const {
+    data: appointments,
+    setData: setAppointments,
+    reload,
+  } = useUserData('/api/appointments', NO_APPOINTMENTS);
 
   const addAppointment = async (input: AgendamentoInput) => {
     const created = await post<Agendamento>('/api/appointments', input);
@@ -51,7 +43,7 @@ export default function AppointmentProvider({ children }: AppointmentProviderPro
   };
 
   return (
-    <AppointmentContext.Provider value={{ appointments, addAppointment, refresh }}>
+    <AppointmentContext.Provider value={{ appointments, addAppointment, refresh: reload }}>
       {children}
     </AppointmentContext.Provider>
   );

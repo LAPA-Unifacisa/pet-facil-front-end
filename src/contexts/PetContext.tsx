@@ -1,7 +1,7 @@
-import { ReactNode, createContext, useEffect, useState } from 'react';
+import { ReactNode, createContext } from 'react';
 
-import { useAuth } from '@/src/hooks/useAuth';
-import { api, del, post } from '@/src/services/api';
+import { useUserData } from '@/src/hooks/useUserData';
+import { del, post } from '@/src/services/api';
 
 export interface Pet {
   id: string;
@@ -12,6 +12,8 @@ export interface Pet {
 }
 
 type PetInput = Omit<Pet, 'id'>;
+
+const NO_PETS: Pet[] = [];
 
 export interface PetContextValue {
   pets: Pet[];
@@ -26,18 +28,7 @@ interface PetProviderProps {
 }
 
 export default function PetProvider({ children }: PetProviderProps) {
-  const { currentUser } = useAuth();
-  const [pets, setPets] = useState<Pet[]>([]);
-
-  useEffect(() => {
-    if (!currentUser) {
-      setPets([]);
-      return;
-    }
-    api<Pet[]>('/api/pets')
-      .then(setPets)
-      .catch((error: unknown) => console.warn('[pets] falha ao carregar os pets:', error));
-  }, [currentUser]);
+  const { data: pets, setData: setPets } = useUserData('/api/pets', NO_PETS);
 
   const addPet = async (input: PetInput) => {
     const pet = await post<Pet>('/api/pets', input);
