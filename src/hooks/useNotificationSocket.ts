@@ -1,7 +1,7 @@
-import * as Notifications from 'expo-notifications';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { patch, wsUrl } from '@/src/services/api';
+import { showLocalNotification } from '@/src/services/localNotifications';
 
 export type NotificationType = 'info' | 'promo' | 'pedido' | 'agendamento' | 'alerta';
 
@@ -24,16 +24,27 @@ type ServerMessage =
 const LOGOUT_CODE = 4001;
 const MAX_RETRY_MS = 30_000;
 
+interface SocketState {
+  token: string | null;
+  items: AppNotification[];
+}
+
 export function useNotificationSocket(token: string | null) {
-  const [items, setItems] = useState<AppNotification[]>([]);
+  const [state, setState] = useState<SocketState>({ token: null, items: [] });
   const [online, setOnline] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
 
+  const items = token && state.token === token ? state.items : [];
+
+  const setItems = useCallback(
+    (update: (list: AppNotification[]) => AppNotification[]) => {
+      setState((prev) => (prev.token === token ? { token, items: update(prev.items) } : prev));
+    },
+    [token],
+  );
+
   useEffect(() => {
-    if (!token) {
-      setItems([]);
-      return;
-    }
+    if (!token) return;
 
     let retry = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -41,15 +52,17 @@ export function useNotificationSocket(token: string | null) {
 
     const handle = (message: ServerMessage) => {
       if (message.type === 'hello') {
-        setItems(message.payload.unread);
+        setState({ token, items: message.payload.unread });
       }
       if (message.type === 'notification') {
         const notification = message.payload;
-        setItems((list) => [notification, ...list.filter((n) => n.id !== notification.id)]);
-        Notifications.scheduleNotificationAsync({
-          content: { title: notification.title, body: notification.body, data: notification.data },
-          trigger: null,
-        }).catch((error: unknown) => console.warn('[notificações] falha no banner:', error));
+        setState((prev) => {
+          const list = prev.token === token ? prev.items : [];
+          return { token, items: [notification, ...list.filter((n) => n.id !== notification.id)] };
+        });
+        showLocalNotification(notification.title, notification.body, notification.data).catch(
+          (error: unknown) => console.warn('[notificações] falha no banner:', error),
+        );
       }
     };
 
@@ -85,25 +98,30 @@ export function useNotificationSocket(token: string | null) {
     };
   }, [token]);
 
-  const markRead = useCallback((id: string) => {
-    const ws = wsRef.current;
-    if (ws?.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: 'notification:read', id }));
-    } else {
-      patch(`/api/notifications/${id}/read`).catch((error: unknown) =>
-        console.warn('[notificações] falha ao marcar como lida:', error),
+  const markRead = useCallback(
+    (id: string) => {
+      const ws = wsRef.current;
+      if (ws?.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'notification:read', id }));
+      } else {
+        patch(`/api/notifications/${id}/read`).catch((error: unknown) =>
+          console.warn('[notificações] falha ao marcar como lida:', error),
+        );
+      }
+      setItems((list) =>
+        list.map((n) =>
+          n.id === id && !n.readAt ? { ...n, readAt: new Date().toISOString() } : n,
+        ),
       );
-    }
-    setItems((list) =>
-      list.map((n) => (n.id === id && !n.readAt ? { ...n, readAt: new Date().toISOString() } : n)),
-    );
-  }, []);
+    },
+    [setItems],
+  );
 
   const markAllRead = useCallback(async () => {
     await patch('/api/notifications/read-all');
     const now = new Date().toISOString();
     setItems((list) => list.map((n) => (n.readAt ? n : { ...n, readAt: now })));
-  }, []);
+  }, [setItems]);
 
   const unread = items.filter((n) => !n.readAt).length;
 

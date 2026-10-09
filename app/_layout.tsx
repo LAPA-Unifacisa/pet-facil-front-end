@@ -1,8 +1,6 @@
-import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
 
 import Loading from '@/src/components/ui/Loading';
 import AppointmentProvider from '@/src/contexts/AppointmentContext';
@@ -13,15 +11,7 @@ import PetProvider from '@/src/contexts/PetContext';
 import ProductProvider from '@/src/contexts/ProductContext';
 import PurchaseProvider from '@/src/contexts/PurchaseContext';
 import { useAuth } from '@/src/hooks/useAuth';
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+import { setupLocalNotifications } from '@/src/services/localNotifications';
 
 function RootNavigation() {
   const { currentUser, isLoading } = useAuth();
@@ -44,15 +34,9 @@ function RootNavigation() {
 
 export default function RootLayout() {
   useEffect(() => {
-    Notifications.requestPermissionsAsync().catch((error: unknown) =>
-      console.warn('[notificações] permissão não concedida:', error),
+    setupLocalNotifications().catch((error: unknown) =>
+      console.warn('[notificações] falha ao configurar:', error),
     );
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'Avisos do PetFacil',
-        importance: Notifications.AndroidImportance.HIGH,
-      }).catch((error: unknown) => console.warn('[notificações] falha ao criar o canal:', error));
-    }
   }, []);
 
   return (
