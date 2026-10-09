@@ -1,40 +1,72 @@
 import { router } from 'expo-router';
 import { ArrowLeftIcon } from 'phosphor-react-native';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ChatMessage } from '@/src/@types/chat';
 import ChatBubble from '@/src/components/chat/ChatBubble';
 import ChatInput from '@/src/components/chat/ChatInput';
 import IconButton from '@/src/components/ui/IconButton';
-import { ChatMessage, sendMessageToAssistant } from '@/src/services/gemini';
+import { api, post } from '@/src/services/api';
 import { colors, spacing, typography } from '@/src/theme';
 
 const GREETING: ChatMessage = {
-  role: 'model',
+  id: 'greeting',
+  role: 'assistant',
   text: 'Oi! Eu sou o assistente do PetFacil. Posso ajudar com produtos, pedidos, pets e agendamentos. Como posso ajudar?',
 };
 
+const TYPING: ChatMessage = { id: 'typing', role: 'assistant', text: 'Digitando...' };
+
+interface SendResponse {
+  userMessage: ChatMessage;
+  reply: ChatMessage;
+}
+
 export default function ChatScreen() {
-  const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const listRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    api<ChatMessage[]>('/api/chat/messages')
+      .then(setMessages)
+      .catch((error: unknown) => console.warn('[chat] falha ao carregar o histórico:', error));
+  }, []);
 
   const handleSend = async () => {
     const text = input.trim();
     if (!text || sending) return;
 
-    const history = messages;
-    const userMessage: ChatMessage = { role: 'user', text };
-    setMessages((prev) => [...prev, userMessage]);
+    const temp: ChatMessage = { id: `tmp-${Date.now()}`, role: 'user', text };
+    setMessages((prev) => [...prev, temp]);
     setInput('');
     setSending(true);
 
-    const response = await sendMessageToAssistant(history, text);
-    setMessages((prev) => [...prev, { role: 'model', text: response }]);
-    setSending(false);
+    try {
+      const response = await post<SendResponse>('/api/chat/messages', { text });
+      setMessages((prev) => [
+        ...prev.filter((message) => message.id !== temp.id),
+        response.userMessage,
+        response.reply,
+      ]);
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `err-${Date.now()}`,
+          role: 'assistant',
+          text: error instanceof Error ? error.message : 'Não consegui responder agora.',
+        },
+      ]);
+    } finally {
+      setSending(false);
+    }
   };
+
+  const data = [GREETING, ...messages, ...(sending ? [TYPING] : [])];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -54,8 +86,8 @@ export default function ChatScreen() {
 
         <FlatList
           ref={listRef}
-          data={messages}
-          keyExtractor={(_, index) => String(index)}
+          data={data}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => <ChatBubble message={item} />}
           onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}

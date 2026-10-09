@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { ChatMessage } from '@/src/services/gemini';
+import { ChatMessage } from '@/src/@types/chat';
 import { borderRadius, colors, spacing, typography } from '@/src/theme';
 
 interface ChatBubbleProps {
