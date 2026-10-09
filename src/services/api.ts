@@ -20,6 +20,7 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
     res = await fetch(`${API_URL}${path}`, {
       ...init,
       headers: {
+        'ngrok-skip-browser-warning': '1',
         ...(isForm ? {} : { 'Content-Type': 'application/json' }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...init.headers,
