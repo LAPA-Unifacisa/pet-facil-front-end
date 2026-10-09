@@ -1,11 +1,18 @@
 import { PlusIcon } from 'phosphor-react-native';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import PillOption from '@/src/components/agenda/PillOption';
 import Button from '@/src/components/ui/Button';
 import Input from '@/src/components/ui/Input';
-import { PetForm as PetFormData, petSchema } from '@/src/schemas/petSchema';
-import { colors, spacing } from '@/src/theme';
+import { ESPECIES, PetForm as PetFormData, petSchema } from '@/src/schemas/petSchema';
+import { colors, spacing, typography } from '@/src/theme';
+
+const ESPECIE_LABELS: Record<(typeof ESPECIES)[number], string> = {
+  cachorro: 'Cachorro',
+  gato: 'Gato',
+  outro: 'Outro',
+};
 
 interface PetFormProps {
   onSubmit: (data: PetFormData) => void;
@@ -26,13 +33,19 @@ export default function PetForm({ onSubmit, submitting = false }: PetFormProps) 
         onChangeText={(value) => setForm((prev) => ({ ...prev, nome: value }))}
         error={fieldErrors.nome?.[0]}
       />
-      <Input
-        label="Espécie"
-        value={form.especie}
-        onChangeText={(value) => setForm((prev) => ({ ...prev, especie: value }))}
-        placeholder="Cachorro, gato..."
-        error={fieldErrors.especie?.[0]}
-      />
+      <View style={styles.field}>
+        <Text style={styles.label}>Espécie</Text>
+        <View style={styles.pillRow}>
+          {ESPECIES.map((especie) => (
+            <PillOption
+              key={especie}
+              label={ESPECIE_LABELS[especie]}
+              selected={form.especie === especie}
+              onPress={() => setForm((prev) => ({ ...prev, especie }))}
+            />
+          ))}
+        </View>
+      </View>
       <Input
         label="Raça"
         value={form.raca}
@@ -44,6 +57,7 @@ export default function PetForm({ onSubmit, submitting = false }: PetFormProps) 
         value={form.dataNascimento}
         onChangeText={(value) => setForm((prev) => ({ ...prev, dataNascimento: value }))}
         placeholder="AAAA-MM-DD"
+        error={form.dataNascimento ? fieldErrors.dataNascimento?.[0] : undefined}
       />
 
       <Button
@@ -63,5 +77,18 @@ export default function PetForm({ onSubmit, submitting = false }: PetFormProps) 
 const styles = StyleSheet.create({
   container: {
     gap: spacing.md,
+  },
+  field: {
+    gap: spacing.sm,
+  },
+  label: {
+    ...typography.caption,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
+  pillRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
   },
 });

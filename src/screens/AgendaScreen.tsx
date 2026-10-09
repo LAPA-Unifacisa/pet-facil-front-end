@@ -33,6 +33,7 @@ export default function AgendaScreen() {
   const [horario, setHorario] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const result = agendamentoSchema.safeParse({ petId, servico, data, horario });
 
@@ -40,13 +41,19 @@ export default function AgendaScreen() {
     if (!result.success) return;
 
     setSubmitting(true);
-    await addAppointment(result.data);
-    setSubmitting(false);
-    setConfirmed(true);
-    setPetId('');
-    setServico('');
-    setData('');
-    setHorario('');
+    setError(null);
+    try {
+      await addAppointment(result.data);
+      setConfirmed(true);
+      setPetId('');
+      setServico('');
+      setData('');
+      setHorario('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível agendar.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const findPetName = (id: string) => pets.find((pet) => pet.id === id)?.nome ?? 'Pet removido';
@@ -138,6 +145,7 @@ export default function AgendaScreen() {
           />
 
           {confirmed && <Text style={styles.confirmedText}>Agendamento confirmado!</Text>}
+          {!!error && <Text style={styles.errorText}>{error}</Text>}
         </>
       )}
 
@@ -193,6 +201,11 @@ const styles = StyleSheet.create({
   confirmedText: {
     ...typography.bodyBold,
     color: colors.success,
+    textAlign: 'center',
+  },
+  errorText: {
+    ...typography.caption,
+    color: colors.error,
     textAlign: 'center',
   },
   section: {

@@ -13,12 +13,19 @@ import { colors, spacing, typography } from '@/src/theme';
 export default function NovoPetScreen() {
   const { addPet } = usePets();
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (data: PetFormData) => {
     setSubmitting(true);
-    await addPet(data);
-    setSubmitting(false);
-    router.back();
+    setError(null);
+    try {
+      await addPet(data);
+      router.back();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível cadastrar o pet.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -35,6 +42,7 @@ export default function NovoPetScreen() {
 
       <View style={styles.content}>
         <PetForm onSubmit={handleSubmit} submitting={submitting} />
+        {!!error && <Text style={styles.error}>{error}</Text>}
       </View>
     </SafeAreaView>
   );
@@ -62,5 +70,10 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.lg,
+    gap: spacing.md,
+  },
+  error: {
+    ...typography.caption,
+    color: colors.error,
   },
 });

@@ -1,19 +1,17 @@
 import { ReactNode, createContext, useEffect, useState } from 'react';
 
 import { useAuth } from '@/src/hooks/useAuth';
-import { STORAGE_KEYS, getItem, setItem } from '@/src/services/storage';
-import { generateId } from '@/src/utils/id';
+import { api, del, post } from '@/src/services/api';
 
 export interface Pet {
   id: string;
-  tutorCpf: string;
   nome: string;
   especie: string;
   raca: string;
   dataNascimento?: string;
 }
 
-type PetInput = Omit<Pet, 'id' | 'tutorCpf'>;
+type PetInput = Omit<Pet, 'id'>;
 
 export interface PetContextValue {
   pets: Pet[];
@@ -29,36 +27,27 @@ interface PetProviderProps {
 
 export default function PetProvider({ children }: PetProviderProps) {
   const { currentUser } = useAuth();
-  const [allPets, setAllPets] = useState<Pet[]>([]);
+  const [pets, setPets] = useState<Pet[]>([]);
 
   useEffect(() => {
-    (async () => {
-      const stored = await getItem<Pet[]>(STORAGE_KEYS.PETS);
-      setAllPets(stored ?? []);
-    })();
-  }, []);
-
-  const pets = currentUser
-    ? allPets.filter((pet) => pet.tutorCpf === currentUser.cpf)
-    : [];
+    if (!currentUser) {
+      setPets([]);
+      return;
+    }
+    api<Pet[]>('/api/pets')
+      .then(setPets)
+      .catch((error: unknown) => console.warn('[pets] falha ao carregar os pets:', error));
+  }, [currentUser]);
 
   const addPet = async (input: PetInput) => {
-    if (!currentUser) return;
-
-    const newPet: Pet = { id: generateId(), tutorCpf: currentUser.cpf, ...input };
-    const updated = [...allPets, newPet];
-
-    await setItem(STORAGE_KEYS.PETS, updated);
-    setAllPets(updated);
+    const pet = await post<Pet>('/api/pets', input);
+    setPets((prev) => [...prev, pet]);
   };
 
   const removePet = async (petId: string) => {
-    const updated = allPets.filter((pet) => pet.id !== petId);
-    await setItem(STORAGE_KEYS.PETS, updated);
-    setAllPets(updated);
+    await del<void>(`/api/pets/${petId}`);
+    setPets((prev) => prev.filter((pet) => pet.id !== petId));
   };
 
-  return (
-    <PetContext.Provider value={{ pets, addPet, removePet }}>{children}</PetContext.Provider>
-  );
+  return <PetContext.Provider value={{ pets, addPet, removePet }}>{children}</PetContext.Provider>;
 }
